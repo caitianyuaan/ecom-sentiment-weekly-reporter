@@ -39,6 +39,9 @@ def main() -> None:
     parser.add_argument("--report-language", default="zh-CN", help="Report language or locale")
     args = parser.parse_args()
 
+    if args.report_language != "zh-CN":
+        raise SystemExit("REPORT_LANGUAGE_MISMATCH: report_language must be zh-CN")
+
     if args.start and args.end:
         start = parse_date(args.start)
         end = parse_date(args.end)
