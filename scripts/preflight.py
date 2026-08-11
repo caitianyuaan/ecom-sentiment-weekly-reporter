@@ -50,7 +50,7 @@ def main():
         "timezone": "Asia/Shanghai",
         "report_language": "zh-CN",
         "narrative_language": "Chinese only",
-        "uxr_metric_language": "English",
+        "uxr_metric_language": "Chinese only",
         "markets": config.get("markets", []),
         "platforms": config.get("platforms", []),
         "sender_name": config.get("sender_name"),
