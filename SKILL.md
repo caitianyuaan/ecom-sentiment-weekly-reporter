@@ -35,7 +35,7 @@ Required configurable fields:
 - `feishu_group_id`: target Feishu group chat ID for outbound reports.
 - `feishu_doc_url`: Feishu document URL for weekly archive.
 - `sender_name`: attribution shown in the final sender line.
-- `report_language`: report language; use `zh-CN` for Chinese UXR briefs, `en` for English briefs, or another explicit locale when requested.
+- `report_language`: must be `zh-CN`. Treat Chinese narrative output as an invariant, not a per-run choice. Keep only the UXR metric labels in English.
 
 Optional configurable fields:
 - `date_range`: explicit reporting window; otherwise use current week in local time.
@@ -51,11 +51,11 @@ If `~/.ecom-sentiment-weekly-reporter/config.json` is missing, incomplete, or co
 
 2. **Build on creator's settings**
    - Start from the sample template.
-   - Ask which markets, platforms, topics, sources, and report language they want to add/remove.
+   - Ask which markets, platforms, topics, and sources they want to add/remove.
    - Require their own Feishu destinations and sender attribution.
 
 3. **Fully customize**
-   - Ask for markets, platforms, topics, source profile or source list, Feishu group, Feishu doc, sender name, and report language.
+   - Ask for markets, platforms, topics, source profile or source list, Feishu group, Feishu doc, and sender name.
    - Create a complete config from scratch.
 
 When writing the config file for the current user, use `scripts/init_user_config.py` with the chosen mode when possible. Do not put another person's Feishu group, document, or sender name into a teammate's saved config unless the teammate explicitly provides it.
@@ -67,10 +67,10 @@ For a scheduled task, the prompt should be short and configuration-driven:
 `Run ecom-sentiment-weekly-reporter with my saved config`
 
 When this prompt is received:
-1. Load `~/.ecom-sentiment-weekly-reporter/config.json`.
-2. Validate required fields are present and not placeholders.
-3. Resolve the reporting week with `scripts/build_week_config.py` using configured markets and optional date range.
-4. Generate, send, and archive reports according to the saved config.
+1. Run `scripts/preflight.py` against `~/.ecom-sentiment-weekly-reporter/config.json`.
+2. Stop with its explicit reason code when status is `blocked`; never fail silently.
+3. Record the run state with `scripts/run_state.py`.
+4. Generate, validate, archive, and send according to the state-gated workflow below.
 
 ## Report format
 
@@ -78,7 +78,7 @@ Produce one complete report per configured market.
 
 ### News item format
 
-For Chinese reports (`report_language: zh-CN`), use exactly this structure for every item:
+Use exactly this Chinese structure for every item:
 
 `【平台】标题。摘要（2-3句，100%纯中文）。时间节点：YYYY/MM/DD [链接](url)【正向/负向/中性】【标签】`
 
@@ -86,7 +86,7 @@ Next line:
 
 `**UXR关联指标：** 指标1 / 指标2 / 指标3`
 
-For non-Chinese reports, keep the same information architecture, translate narrative text into the configured language, and keep UXR metric labels in exact English.
+Do not switch the narrative to English because a source, platform, previous run, or user interface is English. Only the exact UXR metric labels remain in English.
 
 ### Report structure
 
@@ -108,6 +108,8 @@ For English outbound messages, use:
 `Message sent by {sender_name} via Aime personal assistant`
 
 ## Execution workflow
+
+Use this state order: `START -> CONFIG_VALIDATED -> WEEK_RESOLVED -> NEWS_COLLECTED -> REPORT_RENDERED -> REPORT_VALIDATED -> DOC_ARCHIVED -> MESSAGE_SENT -> COMPLETE`. On any failure, record `FAILED` with a reason code. Never send before `REPORT_VALIDATED`; never mark complete before `MESSAGE_SENT`.
 
 ### Step 1: Load and validate configuration
 
@@ -264,15 +266,7 @@ Summarize the main cross-platform signals with exactly these three columns:
 
 When formatting for Feishu, prefer a clean Markdown or HTML table that renders well in chat/doc contexts.
 
-### Step 9: Send Feishu group messages
-
-Use an available Feishu messaging skill, connector, or tool to send the final market report to the configured `feishu_group_id`.
-
-Send the complete report body, not a teaser or abstract.
-
-If no Feishu messaging capability is available, do not claim the report was sent. Return the complete report in the conversation, state that delivery was skipped, and explain which capability is missing.
-
-### Step 10: Archive to the Feishu document
+### Step 9: Archive to the Feishu document
 
 Use an available Feishu/Lark document skill, connector, or tool to update the configured `feishu_doc_url`.
 
@@ -294,9 +288,23 @@ After archival succeeds, add exactly one document link between `**本周速览**
 
 Use the current user's configured `feishu_doc_url`. Do not add the link before archival succeeds, do not substitute another user's document, and do not repeat the link.
 
+### Step 10: Validate the final outbound report
+
+Save the final market report to a temporary UTF-8 text file and run:
+
+`python3 scripts/validate_report.py --report <REPORT_FILE> --config <CONFIG_FILE> --archived`
+
+If validation fails, regenerate once using the returned error codes. If it still fails, record `FAILED` and do not send. Validation is a hard gate, not advisory guidance.
+
+### Step 11: Send the Feishu group message
+
+Only after validation succeeds, use an available Feishu messaging skill, connector, or tool to send the complete report to `feishu_group_id`. Do not send a teaser or abstract. After success, record `MESSAGE_SENT` and then `COMPLETE`.
+
+If no Feishu messaging capability is available, record `FAILED` with `FEISHU_SEND_CAPABILITY_MISSING`, return the complete report in the conversation, and do not claim it was sent.
+
 ## Quality bar
 
-Before sending or archiving, verify all of the following:
+Before any external send, run `scripts/validate_report.py`; do not rely on visual inspection alone. The validator must enforce all of the following:
 - the config was loaded from the current user's saved config or current explicit parameters;
 - no creator-specific Feishu group, document, market list, or sender name was used unless explicitly configured by this user;
 - every item has one link and one sentiment label;
