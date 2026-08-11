@@ -105,6 +105,14 @@ Validate the configuration:
 python3 scripts/init_user_config.py --validate
 ```
 
+After upgrading from an older release, migrate the saved configuration once:
+
+```bash
+python3 scripts/init_user_config.py --migrate
+```
+
+Migration creates a `.v1.bak` backup, preserves the existing scope and Feishu destinations, upgrades the config to version 2, and changes the legacy template's disabled HTML setting to the new enabled default.
+
 Main configuration fields:
 
 | Field | Purpose |

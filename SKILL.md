@@ -58,10 +58,13 @@ For a scheduled task, the prompt should be short and configuration-driven:
 `Run ecom-sentiment-weekly-reporter with my saved config`
 
 When this prompt is received:
-1. Run `scripts/preflight.py` against `~/.ecom-sentiment-weekly-reporter/config.json`.
-2. Stop with its explicit reason code when status is `blocked`; never fail silently.
-3. Record the run state with `scripts/run_state.py`.
-4. Generate, validate, archive, and send according to the state-gated workflow below.
+1. Inspect the config `version`. If it is missing or lower than `2`, run `python3 scripts/init_user_config.py --migrate` before preflight. The migration creates a backup, preserves scope and destinations, and enables the new default HTML output.
+2. Run `scripts/preflight.py` against `~/.ecom-sentiment-weekly-reporter/config.json`.
+3. Stop with its explicit reason code when status is `blocked`; never fail silently.
+4. Record the run state with `scripts/run_state.py`.
+5. Generate, validate, archive, and send according to the state-gated workflow below.
+
+Do not continue with a version-1 config whose `output.html.enabled` still reflects the former default `false`. Migrate first; do not silently fall back to Markdown/Post.
 
 ## Report format
 

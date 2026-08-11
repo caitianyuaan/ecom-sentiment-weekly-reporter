@@ -105,6 +105,14 @@ python3 scripts/init_user_config.py \
 python3 scripts/init_user_config.py --validate
 ```
 
+从旧版本升级后，可执行一次配置迁移：
+
+```bash
+python3 scripts/init_user_config.py --migrate
+```
+
+迁移会先创建 `.v1.bak` 备份，再保留原有市场、平台和飞书目标，将配置升级到版本 2，并把旧模板遗留的 HTML 关闭状态改为默认开启。
+
 个人配置中的主要字段如下：
 
 | 字段 | 用途 |
