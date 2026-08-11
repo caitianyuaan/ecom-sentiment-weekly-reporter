@@ -69,6 +69,14 @@
     "min": 3,
     "max": 5
   },
+  "coverage_qa": {
+    "enabled": true,
+    "include_in_report": false,
+    "source_concentration_warning_share": 0.6,
+    "source_concentration_min_items": 3,
+    "consecutive_zero_selected_weeks": 3,
+    "output_dir": "outputs/qa"
+  },
   "feishu_group_id": "REPLACE_WITH_YOUR_FEISHU_GROUP_CHAT_ID",
   "feishu_doc_url": "REPLACE_WITH_YOUR_FEISHU_DOC_URL",
   "sender_name": "REPLACE_WITH_YOUR_NAME（REPLACE_WITH_YOUR_USERNAME）",
