@@ -322,11 +322,12 @@ Only after validation succeeds, use an available Feishu messaging skill, connect
 
 When `output.html.enabled` is `true`, use this delivery order:
 1. generate the validated `consulting_compact` HTML report;
-2. send it as a Feishu interactive card or HTMLBox when the available Feishu integration supports either format;
-3. verify that the card contains the complete report content and exactly one sender attribution;
-4. only when interactive card / HTMLBox delivery is unavailable, fall back to a Markdown-derived Feishu `post` message and explicitly report that fallback in the run result.
+2. read `references/report-format-feishu-card.md` and render native Card JSON 2.0 with `scripts/render_feishu_cards.py`;
+3. send the generated payloads with `msg_type: interactive`, using one overview card followed by market detail cards;
+4. verify that each news item is a separate card component and each market card contains exactly one sender attribution;
+5. expose the complete HTML report through the card button when it has an accessible HTTP(S) URL.
 
-Do not silently choose Markdown `post` merely because it is easier to send. HTML/card delivery is the default presentation path. Do not paste raw HTML source into a plain-text or Markdown message.
+Feishu cards do not render arbitrary browser HTML/CSS. Do not use or claim an `HTMLBox` path, do not paste raw HTML, and do not wrap the complete Markdown report in one giant card component. If native Card JSON 2.0 delivery is unavailable, keep the HTML report as a local artifact and explicitly ask before sending a degraded Markdown `post`; never silently downgrade.
 
 After success, record `MESSAGE_SENT` and then `COMPLETE`.
 
@@ -347,7 +348,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 - after successful archival, the complete-report document link appears exactly once immediately before the sender attribution;
 - each market report ends with exactly one configured sender attribution line;
 - outbound titles and archive title use the resolved week from `scripts/build_week_config.py`.
-- when HTML output is enabled, the Feishu send used interactive card / HTMLBox or the run result explicitly disclosed the Markdown `post` fallback.
+- when HTML output is enabled, the Feishu send used native Card JSON 2.0 with `msg_type: interactive`; a Markdown `post` fallback requires explicit user approval.
 
 ## Reference files
 
@@ -355,6 +356,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 - Use `references/sample-config.template.json` when onboarding teammates or creating a new per-user config.
 - Read `references/onboarding-zh.md` for every first-run or incomplete-config experience.
 - Use `references/report-format-html.md` for compact consulting-style HTML reports designed for group scanning.
+- Use `references/report-format-feishu-card.md` and `scripts/render_feishu_cards.py` for native Feishu Card JSON 2.0 delivery.
 
 ## Attribution
 

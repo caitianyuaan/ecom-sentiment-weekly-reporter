@@ -195,7 +195,7 @@ The Skill prioritizes official notices, regulators, platform newsrooms, company 
 - **HTML:** a browser-ready consulting brief suitable for screenshots and group sharing.
 - **Feishu delivery and archive:** performed when valid destinations are configured and the runtime provides the required integration.
 
-When HTML output is enabled, Feishu delivery prefers an interactive card or HTMLBox so the compact report layout is preserved. It falls back to a Markdown-derived `post` message only when the available Feishu integration does not support cards or HTMLBox, and the run result must disclose that fallback.
+When HTML output is enabled, the Skill creates two artifacts: the complete browser HTML report and native Feishu Card JSON 2.0. Feishu receives `msg_type: interactive` payloads—an overview card followed by market detail cards—with each news item in its own component. Feishu does not render arbitrary webpage HTML/CSS, so the Skill no longer uses or claims an HTMLBox path. Falling back to a Markdown `post` requires explicit user approval.
 
 See [`references/report-format-html.md`](references/report-format-html.md) for the HTML presentation contract.
 
