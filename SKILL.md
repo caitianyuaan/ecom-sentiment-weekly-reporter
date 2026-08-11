@@ -35,7 +35,7 @@ Required configurable fields:
 - `feishu_group_id`: target Feishu group chat ID for outbound reports.
 - `feishu_doc_url`: Feishu document URL for weekly archive.
 - `sender_name`: attribution shown in the final sender line.
-- `report_language`: must be `zh-CN`. Treat Chinese narrative output as an invariant, not a per-run choice. Keep only the UXR metric labels in English.
+- `report_language`: must be `zh-CN`. Treat all narrative text and UXR metric labels as Chinese-only invariants, not per-run choices.
 
 Optional configurable fields:
 - `date_range`: explicit reporting window; otherwise use current week in local time.
@@ -86,7 +86,7 @@ Next line:
 
 `**UXR关联指标：** 指标1 / 指标2 / 指标3`
 
-Do not switch the narrative to English because a source, platform, previous run, or user interface is English. Only the exact UXR metric labels remain in English.
+Do not switch the narrative or UXR metric labels to English because a source, platform, previous run, or user interface is English.
 
 ### Report structure
 
@@ -181,70 +181,70 @@ For every selected item:
 - assign one sentiment label only: `正向` / `负向` / `中性` for Chinese, or `Positive` / `Negative` / `Neutral` for English;
 - assign a concise tag in the configured report language;
 - append 3-4 UXR metric labels. Prefer three and use four when the item clearly spans four distinct UXR implications;
-- use the exact English labels from the taxonomy below with original capitalization and punctuation.
+- use only the exact Chinese labels from the taxonomy below.
 
 ### Step 7: Map to exact UXR metric labels
 
 Only use these exact labels.
 
-**Product & Selection**
-- High quality products
-- Authentic branded products
-- Trustworthy sellers
-- Variety of products
-- Competitive prices
-- Shipping fee Competitiveness
-- Trendy products
-- Products are unique & Interesting
-- Many brands I like
+**商品与供给**
+- 高品质商品
+- 正品品牌商品
+- 可信赖的卖家
+- 商品种类丰富
+- 价格有竞争力
+- 运费有竞争力
+- 潮流商品
+- 商品独特且有趣
+- 有许多我喜欢的品牌
 
-**Content & Discovery**
-- Engaging Shoppable content
-- Relevant recommendations
-- Not overly repetitive
-- Genuine/trustworthy price & promotions
-- Genuine discounts in video/LIVEs
-- Trustworthy EC video/LIVEs
-- Informative EC video/LIVEs introduction
-- Entertaining EC video/LIVEs
-- Discover product/brand
-- Diverse and rich content
-- High content quality (audio & light)
-- Content not exaggerated
+**内容与发现**
+- 有吸引力的可购物内容
+- 相关推荐
+- 不过度重复
+- 真实可信的价格与促销
+- 视频/直播中的真实折扣
+- 可信赖的电商视频/直播
+- 信息丰富的电商视频/直播介绍
+- 有娱乐性的电商视频/直播
+- 发现商品/品牌
+- 多样且丰富的内容
+- 高质量内容（音频与灯光）
+- 内容不过度夸张
 
-**Promotions & Pricing**
-- Simple sales/coupon rules
-- Compelling sales/discounts
-- Genuine/trustworthy price & promotions
+**促销与价格**
+- 简单易懂的促销/优惠券规则
+- 有吸引力的促销/折扣
+- 真实可信的价格与促销
 
-**Shopping Experience**
-- Shopping features are easy to use
-- Easy to search products/sellers
-- Helpful reviews & ratings
+**购物体验**
+- 易于使用的购物功能
+- 易于搜索商品/卖家
+- 有帮助的评论与评分
 
-**Delivery & Fulfillment**
-- Fast overall delivery
-- Secure intact packages
-- Easy to track delivery
-- Shipping fee Competitiveness
+**配送与履约**
+- 整体配送速度快
+- 包裹安全完好
+- 易于追踪配送
+- 运费有竞争力
 
-**After-sales & Trust**
-- Smooth refund and return
-- Secure payment
-- Easy to contact CS
-- Customer friendly policies
-- Protects my info
-- Post purchase policy communication
-- Confident in Refund
-- Smooth refund/return exchange
-- Ease to initiate
-- Easy approval
-- Fast process & refund
-- Ease of tracking
-- Convenient return
-- Free returns
-- Seller CS helpfulness
-- Platform CS helpfulness
+**售后与信任**
+- 顺畅退款与退货
+- 支付安全
+- 易于联系客户服务
+- 对消费者友好的政策
+- 保护我的信息
+- 购后政策沟通
+- 对退款有信心
+- 顺畅退款/退货/换货
+- 易于发起
+- 容易获批
+- 流程与退款速度快
+- 易于追踪
+- 退货方便
+- 免费退货
+- 卖家客服有帮助
+- 平台客服有帮助
 
 ### Step 8: Assemble each market report
 
@@ -310,7 +310,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 - every item has one link and one sentiment label;
 - every item has a UXR metric line immediately after it;
 - every item has 3-4 UXR metric labels;
-- all UXR metric labels exactly match the taxonomy above;
+- all UXR metric labels are Chinese and exactly match the taxonomy above;
 - grouping is by configured platform, with clear bold section headers;
 - the weekly summary uses only the columns `维度`, `平台`, and `信号`;
 - after successful archival, the complete-report document link appears exactly once immediately before the sender attribution;
