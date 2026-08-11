@@ -1,0 +1,4 @@
+interface:
+  display_name: "E-commerce Sentiment Weekly Reporter"
+  short_description: "Build weekly e-commerce sentiment reports for UXR teams"
+  default_prompt: "Use $ecom-sentiment-weekly-reporter to generate this week’s configured e-commerce sentiment reports."
