@@ -197,6 +197,8 @@ Skill 优先使用官方公告、监管机构、平台新闻中心、公司博�
 
 当 HTML 输出开启时，系统会生成两种产物：浏览器中的完整 HTML 报告，以及飞书原生 Card JSON 2.0。飞书端使用 `msg_type: interactive`，先发送概览卡，再按市场发送明细卡；每条新闻使用独立组件，避免整份 Markdown 被塞进一张超长卡片。飞书不支持任意网页 HTML/CSS，因此不再使用或声称支持 HTMLBox。若原生卡片不可用，降级为 Markdown `post` 前必须获得用户明确同意。
 
+跨市场概览卡提供两个独立入口：“查看本周完整 HTML 报告”和“查看飞书文档历史归档”。前者打开一份合并所有市场的当周报告，后者用于回看往期归档；市场明细卡不重复显示按钮，缺少某个有效链接时只隐藏对应按钮。
+
 HTML 布局规范见 [`references/report-format-html.md`](references/report-format-html.md)。
 
 ## 常见问题

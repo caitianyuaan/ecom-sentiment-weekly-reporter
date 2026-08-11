@@ -14,16 +14,25 @@ def divider():
     return {"tag": "hr", "margin": "10px 0px 10px 0px"}
 
 
-def button(label, url):
+def button(label, url, button_type="primary"):
     return {
         "tag": "button",
         "text": {"tag": "plain_text", "content": label},
-        "type": "primary",
+        "type": button_type,
         "width": "fill",
         "size": "medium",
         "behaviors": [{"type": "open_url", "default_url": url}],
         "margin": "12px 0px 0px 0px",
     }
+
+
+def report_buttons(report):
+    elements = []
+    if report.get("full_report_url"):
+        elements.append(button("查看本周完整 HTML 报告", report["full_report_url"], "primary"))
+    if report.get("archive_url"):
+        elements.append(button("查看飞书文档历史归档", report["archive_url"], "default"))
+    return elements
 
 
 def card(title, subtitle, elements, template="blue"):
@@ -69,8 +78,7 @@ def render_cards(report):
     for market in report.get("markets", []):
         label = " ".join(part for part in [market.get("flag"), market.get("name")] if part)
         overview.append(md(f"**{label}**\n{market.get('summary', '')}", margin="8px 0px 0px 0px"))
-    if report.get("full_report_url"):
-        overview.append(button("查看完整 HTML 报告", report["full_report_url"]))
+    overview.extend(report_buttons(report))
     cards.append(card(report["title"], report.get("subtitle", ""), overview))
 
     for market in report.get("markets", []):
@@ -80,8 +88,6 @@ def render_cards(report):
             if index:
                 elements.append(divider())
             elements.append(render_item(item))
-        if report.get("full_report_url"):
-            elements.append(button("查看完整 HTML 报告", report["full_report_url"]))
         if report.get("sender_name"):
             elements.append(md(f"发送人：{report['sender_name']}", size="notation", margin="10px 0px 0px 0px"))
         cards.append(card(f"{label}电商舆情周报", report.get("subtitle", ""), elements, template="wathet"))

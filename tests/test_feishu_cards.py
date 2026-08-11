@@ -14,6 +14,7 @@ REPORT = {
     "title": "US/UK 电商舆情周报",
     "subtitle": "2026/08/10–2026/08/16",
     "full_report_url": "https://example.com/report.html",
+    "archive_url": "https://example.com/archive",
     "sender_name": "cty",
     "takeaways": ["价格与履约压力上升", "平台治理信号集中"],
     "markets": [
@@ -53,11 +54,30 @@ class FeishuCardTests(unittest.TestCase):
         self.assertNotIn("HTML/Rich Card", str(market))
         self.assertEqual(str(market).count("发送人：cty"), 1)
 
-    def test_full_report_uses_button_not_raw_html(self):
+    def test_full_report_and_archive_use_separate_buttons(self):
         overview = MODULE.render_cards(REPORT)[0]
         buttons = [element for element in overview["body"]["elements"] if element["tag"] == "button"]
+        self.assertEqual(len(buttons), 2)
+        self.assertEqual(buttons[0]["text"]["content"], "查看本周完整 HTML 报告")
         self.assertEqual(buttons[0]["behaviors"][0]["default_url"], REPORT["full_report_url"])
+        self.assertEqual(buttons[1]["text"]["content"], "查看飞书文档历史归档")
+        self.assertEqual(buttons[1]["behaviors"][0]["default_url"], REPORT["archive_url"])
+        self.assertEqual(buttons[0]["type"], "primary")
+        self.assertEqual(buttons[1]["type"], "default")
         self.assertNotIn("<html", str(overview).lower())
+
+    def test_missing_archive_url_hides_only_archive_button(self):
+        report = dict(REPORT)
+        report.pop("archive_url")
+        overview = MODULE.render_cards(report)[0]
+        buttons = [element for element in overview["body"]["elements"] if element["tag"] == "button"]
+        self.assertEqual(len(buttons), 1)
+        self.assertEqual(buttons[0]["text"]["content"], "查看本周完整 HTML 报告")
+
+    def test_market_cards_do_not_repeat_report_buttons(self):
+        market = MODULE.render_cards(REPORT)[1]
+        buttons = [element for element in market["body"]["elements"] if element["tag"] == "button"]
+        self.assertEqual(buttons, [])
 
 
 if __name__ == "__main__":

@@ -325,7 +325,8 @@ When `output.html.enabled` is `true`, use this delivery order:
 2. read `references/report-format-feishu-card.md` and render native Card JSON 2.0 with `scripts/render_feishu_cards.py`;
 3. send the generated payloads with `msg_type: interactive`, using one overview card followed by market detail cards;
 4. verify that each news item is a separate card component and each market card contains exactly one sender attribution;
-5. expose the complete HTML report through the card button when it has an accessible HTTP(S) URL.
+5. generate one combined-market HTML report by default and expose it through one primary button on the overview card when it has an accessible HTTP(S) URL;
+6. expose the configured Feishu document archive through one separate secondary button on the overview card. Do not repeat either button on market detail cards, do not reuse one URL for both actions, and hide only the button whose URL is unavailable.
 
 Feishu cards do not render arbitrary browser HTML/CSS. Do not use or claim an `HTMLBox` path, do not paste raw HTML, and do not wrap the complete Markdown report in one giant card component. If native Card JSON 2.0 delivery is unavailable, keep the HTML report as a local artifact and explicitly ask before sending a degraded Markdown `post`; never silently downgrade.
 
