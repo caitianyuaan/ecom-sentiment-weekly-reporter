@@ -17,7 +17,7 @@ CONFIG = {
 VALID_REPORT = """🇬🇧 英国电商舆情周报｜Week of 2026-06-01
 **Amazon**
 【Amazon】平台推出新的配送服务。该服务提升英国消费者的履约体验，并强化日常购物的便利性。时间节点：2026/06/02 [链接](https://example.com/news)【正向】【物流/便利性】
-**UXR关联指标：** Fast overall delivery / Secure intact packages / Easy to track delivery
+**UXR关联指标：** 整体配送速度快 / 包裹安全完好 / 易于追踪配送
 **本周速览**
 | 维度 | 平台 | 信号 |
 | --- | --- | --- |
@@ -38,6 +38,11 @@ class StabilityTests(unittest.TestCase):
     def test_duplicate_sender_is_rejected(self):
         report = VALID_REPORT + "消息由 测试用户 通过 Aime 个人助理 发送\n"
         self.assertIn("SENDER_LINE_COUNT", MODULE.validate(report, CONFIG, archived=True))
+
+    def test_english_uxr_label_is_rejected(self):
+        report = VALID_REPORT.replace("整体配送速度快", "Fast overall delivery")
+        errors = MODULE.validate(report, CONFIG, archived=True)
+        self.assertTrue(any(error.startswith("UXR_LABEL_INVALID") for error in errors))
 
     def test_unarchived_report_must_not_include_link(self):
         self.assertIn("DOCUMENT_LINK_COUNT", MODULE.validate(VALID_REPORT, CONFIG, archived=False))
