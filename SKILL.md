@@ -40,6 +40,7 @@ Required configurable fields:
 Optional configurable fields:
 - `date_range`: explicit reporting window; otherwise use current week in local time.
 - `items_per_platform`: recommended range is 3-5 when enough valid items exist.
+- `output.html`: HTML output toggle, output directory, and layout. Use `consulting_compact` for a group-readable management brief.
 
 ## First-run onboarding
 
@@ -172,6 +173,8 @@ Selection rules:
 - if multiple articles cover the same event, keep the strongest source and use one link;
 - keep the tone factual and balanced.
 
+Treat the date window as a hard integrity constraint. A requested item count is a target, not permission to add older background reports, stale consumer studies, or later follow-up news. If the verified sample is smaller than the target, render the smaller sample and state the shortfall. Never relabel an older publication with an in-window date merely because its topic remains relevant.
+
 ### Step 6: Write each item
 
 For every selected item:
@@ -266,6 +269,22 @@ Summarize the main cross-platform signals with exactly these three columns:
 
 When formatting for Feishu, prefer a clean Markdown or HTML table that renders well in chat/doc contexts.
 
+### Step 8A: Render compact HTML when requested
+
+When the user requests HTML, a visually polished report, a consulting-style brief, or a report intended for fast scanning in a group chat, read `references/report-format-html.md` and render one combined HTML report unless the user asks for separate market files.
+
+For a combined US/UK report:
+- place the US section before the UK section;
+- use one restrained single-column page, not side-by-side market columns;
+- lead with three or fewer cross-market conclusions;
+- render each item with one full-width metadata row, headline, bold key fact, 2-4 sentence factual summary, compact UXR disclosure, date, and source;
+- use available horizontal width and avoid fixed sidebars that create empty space;
+- default to no images; add images only when the user asks and the image belongs to the exact event;
+- preserve the full evidence content even when the visual treatment is compact;
+- keep mobile rendering single-column and readable without horizontal scrolling.
+
+HTML is a presentation of the same selected evidence, not a second analysis. Its item set, dates, sentiment labels, UXR metrics, and links must match the validated report evidence.
+
 ### Step 9: Archive to the Feishu document
 
 Use an available Feishu/Lark document skill, connector, or tool to update the configured `feishu_doc_url`.
@@ -321,6 +340,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 
 - Use `references/source-playbook.md` as the default source universe and query-planning reference when `source_profile` is `default`.
 - Use `references/sample-config.template.json` when onboarding teammates or creating a new per-user config.
+- Use `references/report-format-html.md` for compact consulting-style HTML reports designed for group scanning.
 
 ## Attribution
 

@@ -69,6 +69,15 @@
     "min": 3,
     "max": 5
   },
+  "output": {
+    "html": {
+      "enabled": false,
+      "output_dir": "outputs",
+      "layout": "consulting_compact",
+      "combine_markets": true,
+      "include_images": false
+    }
+  },
   "feishu_group_id": "REPLACE_WITH_YOUR_FEISHU_GROUP_CHAT_ID",
   "feishu_doc_url": "REPLACE_WITH_YOUR_FEISHU_DOC_URL",
   "sender_name": "REPLACE_WITH_YOUR_NAME（REPLACE_WITH_YOUR_USERNAME）",
