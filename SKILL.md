@@ -90,12 +90,14 @@ For non-Chinese reports, keep the same information architecture, translate narra
 
 ### Report structure
 
+Follow this exact outbound order:
+
 1. Market title line.
-2. Date range line.
-3. Grouped platform sections using bold platform headers.
-4. 3-5 items per platform when enough valid items exist; state when verifiable samples are insufficient.
-5. Weekly summary table.
-6. Sender attribution line derived from `sender_name`.
+2. Grouped platform sections using bold platform headers.
+3. 3-5 items per platform when enough valid items exist. After the available items for a platform, write `本周可验证样本不足` when fewer than three valid items exist.
+4. `**本周速览**` summary with the columns `维度`, `平台`, and `信号`.
+5. One complete-report document link after successful archival.
+6. Exactly one sender attribution line derived from `sender_name`.
 
 For Chinese outbound messages, the final sender line is:
 
@@ -176,7 +178,7 @@ For every selected item:
 - write a 2-3 sentence summary in the configured report language;
 - assign one sentiment label only: `正向` / `负向` / `中性` for Chinese, or `Positive` / `Negative` / `Neutral` for English;
 - assign a concise tag in the configured report language;
-- append exactly three UXR metric labels unless the event strongly supports fewer; when fewer are truly justified, use at least two;
+- append 3-4 UXR metric labels. Prefer three and use four when the item clearly spans four distinct UXR implications;
 - use the exact English labels from the taxonomy below with original capitalization and punctuation.
 
 ### Step 7: Map to exact UXR metric labels
@@ -246,17 +248,19 @@ Only use these exact labels.
 
 Structure each market report in this order:
 1. market title line;
-2. date range line;
-3. grouped platform sections;
-4. weekly summary table;
+2. grouped platform sections;
+3. weekly summary;
+4. complete-report document link;
 5. sender attribution line.
 
-For the weekly summary table, include at minimum these columns:
-- Platform
-- # of items
-- Net sentiment
-- Key themes
-- Main UXR metrics impacted
+Use this Chinese weekly-summary header:
+
+`**本周速览**`
+
+Summarize the main cross-platform signals with exactly these three columns:
+- `维度`
+- `平台`
+- `信号`
 
 When formatting for Feishu, prefer a clean Markdown or HTML table that renders well in chat/doc contexts.
 
@@ -284,6 +288,12 @@ Archive behavior:
 
 If no Feishu/Lark document capability is available, do not claim the report was archived. Preserve the complete archive-ready content in the response and state that archival was skipped.
 
+After archival succeeds, add exactly one document link between `**本周速览**` and the sender attribution:
+
+`**完整报告文档：** [点击查看]({feishu_doc_url})`
+
+Use the current user's configured `feishu_doc_url`. Do not add the link before archival succeeds, do not substitute another user's document, and do not repeat the link.
+
 ## Quality bar
 
 Before sending or archiving, verify all of the following:
@@ -291,9 +301,12 @@ Before sending or archiving, verify all of the following:
 - no creator-specific Feishu group, document, market list, or sender name was used unless explicitly configured by this user;
 - every item has one link and one sentiment label;
 - every item has a UXR metric line immediately after it;
+- every item has 3-4 UXR metric labels;
 - all UXR metric labels exactly match the taxonomy above;
 - grouping is by configured platform, with clear bold section headers;
-- each market report ends with the configured sender attribution;
+- the weekly summary uses only the columns `维度`, `平台`, and `信号`;
+- after successful archival, the complete-report document link appears exactly once immediately before the sender attribution;
+- each market report ends with exactly one configured sender attribution line;
 - outbound titles and archive title use the resolved week from `scripts/build_week_config.py`.
 
 ## Reference files
