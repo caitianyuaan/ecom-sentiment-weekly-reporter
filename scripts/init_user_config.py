@@ -14,6 +14,7 @@ REQUIRED_FIELDS = [
 ]
 
 PLACEHOLDER_PREFIX = "REPLACE_WITH_"
+CURRENT_CONFIG_VERSION = 2
 
 
 def skill_root() -> Path:
@@ -57,6 +58,33 @@ def validate_config(config: dict) -> list[str]:
     return errors
 
 
+def migrate_config(config: dict) -> tuple[dict, list[str]]:
+    """Upgrade legacy configs without overwriting user-selected scope or destinations."""
+    version = int(config.get("version", 1))
+    changes = []
+    if version >= CURRENT_CONFIG_VERSION:
+        return config, changes
+
+    template = load_template()
+    config.setdefault("observation_metrics", template["observation_metrics"])
+    config.setdefault("delivery", {
+        "local": True,
+        "feishu_group": not is_placeholder(config.get("feishu_group_id")),
+        "feishu_archive": not is_placeholder(config.get("feishu_doc_url")),
+    })
+    output = config.setdefault("output", {})
+    output.setdefault("markdown", template["output"]["markdown"])
+    html = output.setdefault("html", {})
+    if not html.get("enabled"):
+        html["enabled"] = True
+        changes.append("output.html.enabled:false->true")
+    for key, value in template["output"]["html"].items():
+        html.setdefault(key, value)
+    config["version"] = CURRENT_CONFIG_VERSION
+    changes.append(f"version:{version}->{CURRENT_CONFIG_VERSION}")
+    return config, changes
+
+
 def write_config(config: dict, path: Path, overwrite: bool) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists() and not overwrite:
@@ -72,6 +100,7 @@ def main() -> None:
     parser.add_argument("--config", default=str(default_config_path()), help="Path to per-user config file")
     parser.add_argument("--from-template", action="store_true", help="Create config from the bundled sample template")
     parser.add_argument("--validate", action="store_true", help="Validate an existing config")
+    parser.add_argument("--migrate", action="store_true", help="Back up and migrate an existing legacy config")
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing config when creating from template")
     parser.add_argument("--print-template", action="store_true", help="Print the bundled template to stdout")
     args = parser.parse_args()
@@ -94,6 +123,21 @@ def main() -> None:
                 print(f"- {error}")
             raise SystemExit(1)
         print("VALID")
+        return
+
+    if args.migrate:
+        if not config_path.exists():
+            raise SystemExit(f"Config not found: {config_path}")
+        with config_path.open("r", encoding="utf-8") as f:
+            config = json.load(f)
+        config, changes = migrate_config(config)
+        if not changes:
+            print("ALREADY_CURRENT")
+            return
+        backup_path = config_path.with_suffix(config_path.suffix + ".v1.bak")
+        shutil.copy2(config_path, backup_path)
+        write_config(config, config_path, overwrite=True)
+        print(json.dumps({"status": "migrated", "backup": str(backup_path), "changes": changes}, ensure_ascii=False, indent=2))
         return
 
     if args.from_template:

@@ -28,6 +28,8 @@ def main():
 
     config = json.loads(Path(args.config).expanduser().read_text(encoding="utf-8"))
     errors = [f"CONFIG_MISSING:{field}" for field in REQUIRED if field not in config or invalid(config[field])]
+    if int(config.get("version", 1)) < 2:
+        errors.append("CONFIG_MIGRATION_REQUIRED")
     if not config.get("source_profile") and not config.get("sources"):
         errors.append("CONFIG_MISSING:source_profile_or_sources")
 
