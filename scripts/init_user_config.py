@@ -47,6 +47,18 @@ def validate_config(config: dict) -> list[str]:
             errors.append(f"Missing or placeholder required field: {field}")
     if not config.get("source_profile") and not config.get("sources"):
         errors.append("Missing source_profile or sources")
+    coverage_qa = config.get("coverage_qa")
+    if coverage_qa is not None:
+        if not isinstance(coverage_qa, dict):
+            errors.append("coverage_qa must be an object")
+        else:
+            share = coverage_qa.get("source_concentration_warning_share", 0.6)
+            if not isinstance(share, (int, float)) or isinstance(share, bool) or not 0 <= share <= 1:
+                errors.append("coverage_qa.source_concentration_warning_share must be a number from 0 to 1")
+            for field in ("source_concentration_min_items", "consecutive_zero_selected_weeks"):
+                value = coverage_qa.get(field)
+                if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 1):
+                    errors.append(f"coverage_qa.{field} must be a positive integer")
     return errors
 
 

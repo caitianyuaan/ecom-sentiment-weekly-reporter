@@ -40,6 +40,7 @@ Required configurable fields:
 Optional configurable fields:
 - `date_range`: explicit reporting window; otherwise use current week in local time.
 - `items_per_platform`: recommended range is 3-5 when enough valid items exist.
+- `coverage_qa`: internal search-coverage and blank-space diagnostics. Default to enabled, keep it out of the public report, and warn on zero coverage, repeated topic gaps, or excessive source concentration.
 
 ## First-run onboarding
 
@@ -157,6 +158,8 @@ Search by market, platform, topic, and week using public sources only. Search th
 
 Do not rely on a single source. Build coverage from multiple reputable outlets and official / semi-official platform channels when available.
 
+Maintain a structured search log while searching. Record one row per executed query with `market`, `platform`, `topic`, `query`, `executed_at`, `result_count`, and `inspected_count`. Count only queries that were actually executed, not planned queries. Count candidates only after a result has been inspected and entered in the candidate dataset.
+
 ### Step 5: Filter and select items
 
 Include only items that satisfy all of the following:
@@ -171,6 +174,19 @@ Selection rules:
 - avoid duplicate rewrites of the same news unless they add meaningful new details;
 - if multiple articles cover the same event, keep the strongest source and use one link;
 - keep the tone factual and balanced.
+
+### Step 5A: Generate internal coverage QA
+
+Read `references/coverage-qa.md`. After selection, generate an internal coverage QA record from the executed-query log, candidate records, selected items, and rejection log. Use `scripts/summarize_coverage.py` when those inputs are available as JSON.
+
+The QA record must report:
+- executed query and inspected-result counts by market, platform, and topic;
+- candidate, selected, and rejected counts, including rejection reasons;
+- configured platforms and topics with zero executed queries, zero candidates, or zero selected items;
+- topics with zero selected items for the configured consecutive-week window when comparable history is available;
+- source concentration among inspected candidates and selected items.
+
+Keep the QA record internal by default. Do not add it to the canonical report, Feishu group message, or weekly archive unless `coverage_qa.include_in_report` is explicitly true. Always surface actionable warnings in the run result. Never treat zero selected items alone as proof that no relevant news existed: distinguish `not_searched`, `searched_no_candidates`, `candidates_rejected`, and `selected`.
 
 ### Step 6: Write each item
 
@@ -316,11 +332,16 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 - after successful archival, the complete-report document link appears exactly once immediately before the sender attribution;
 - each market report ends with exactly one configured sender attribution line;
 - outbound titles and archive title use the resolved week from `scripts/build_week_config.py`.
+- the coverage QA record was generated when `coverage_qa.enabled` is not `false`;
+- query counts reflect executed searches rather than planned searches;
+- every configured market, platform, and topic is classified as `not_searched`, `searched_no_candidates`, `candidates_rejected`, or `selected`;
+- zero-coverage and source-concentration warnings are surfaced internally without silently changing the public report format.
 
 ## Reference files
 
 - Use `references/source-playbook.md` as the default source universe and query-planning reference when `source_profile` is `default`.
 - Use `references/sample-config.template.json` when onboarding teammates or creating a new per-user config.
+- Use `references/coverage-qa.md` when logging searches, diagnosing coverage gaps, or deciding whether insufficient samples reflect the news environment or the search process.
 
 ## Attribution
 
