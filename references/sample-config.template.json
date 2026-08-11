@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "profile_name": "My E-commerce Sentiment Weekly Report",
   "setup_mode": "follow_creator_settings | build_on_creator_settings | fully_customize",
   "markets": ["US", "UK"],
@@ -24,6 +24,15 @@
     "payment safety",
     "product authenticity",
     "customer service"
+  ],
+  "observation_metrics": [
+    "product and selection",
+    "content and discovery",
+    "promotions and pricing",
+    "shopping experience",
+    "delivery and fulfillment",
+    "after-sales and trust",
+    "business scale and growth"
   ],
   "source_profile": "default",
   "sources": {
@@ -70,6 +79,10 @@
     "max": 5
   },
   "output": {
+    "markdown": {
+      "enabled": false,
+      "output_dir": "outputs"
+    },
     "html": {
       "enabled": true,
       "output_dir": "outputs",
@@ -78,8 +91,13 @@
       "include_images": false
     }
   },
-  "feishu_group_id": "REPLACE_WITH_YOUR_FEISHU_GROUP_CHAT_ID",
-  "feishu_doc_url": "REPLACE_WITH_YOUR_FEISHU_DOC_URL",
-  "sender_name": "REPLACE_WITH_YOUR_NAME（REPLACE_WITH_YOUR_USERNAME）",
+  "delivery": {
+    "local": true,
+    "feishu_group": false,
+    "feishu_archive": false
+  },
+  "feishu_group_id": "",
+  "feishu_doc_url": "",
+  "sender_name": "",
   "report_language": "zh-CN"
 }

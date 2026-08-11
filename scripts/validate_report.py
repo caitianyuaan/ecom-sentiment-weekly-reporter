@@ -28,9 +28,13 @@ def validate(report, config, archived):
     for header in ("维度", "平台", "信号"):
         if header not in report:
             errors.append(f"WEEKLY_SUMMARY_COLUMN_MISSING:{header}")
-    sender = f"消息由 {config['sender_name']} 通过 Aime 个人助理 发送"
-    if report.count(sender) != 1:
-        errors.append("SENDER_LINE_COUNT")
+    sender_name = config.get("sender_name", "")
+    if sender_name:
+        sender = f"消息由 {sender_name} 通过 Aime 个人助理 发送"
+        if report.count(sender) != 1:
+            errors.append("SENDER_LINE_COUNT")
+    elif any(line.strip().startswith("消息由 ") for line in report.splitlines()):
+        errors.append("UNCONFIGURED_SENDER_LINE")
     doc_prefix = "**完整报告文档：**"
     expected_docs = 1 if archived else 0
     if report.count(doc_prefix) != expected_docs:

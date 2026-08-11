@@ -83,11 +83,12 @@ The Skill resolves configuration in this order:
 2. Personal settings in `~/.ecom-sentiment-weekly-reporter/config.json`;
 3. Guided onboarding when required settings are missing.
 
-Three setup modes are available:
+First run does not stop at a “config not found” error. It offers two paths:
 
-- **Follow the creator's settings:** copy the default markets, platforms, topics, and source scope, then add your own delivery details.
-- **Build on the creator's settings:** retain the defaults while adding or removing markets, platforms, topics, or sources.
-- **Fully customize:** define the monitoring scope, report language, outputs, and Feishu destinations from scratch.
+- **Use the recommended setup and generate now:** US + UK, major platforms, all observation groups, balanced sources, compact Chinese HTML, and local-only delivery.
+- **Customize:** choose markets and platforms, news topics and observation metrics, source strategy, then file formats and delivery channels.
+
+File format and delivery are configured separately. Files can be HTML, Markdown, or both; delivery can be local-only, Feishu group, Feishu document, or both Feishu destinations. Feishu IDs and attribution are requested only after a Feishu channel is selected.
 
 Create a personal config from the template:
 
@@ -111,6 +112,7 @@ Main configuration fields:
 | `markets` | Markets to monitor, such as `US` and `UK` |
 | `platforms` | Priority platforms |
 | `topics` | Priority monitoring topics |
+| `observation_metrics` | Observation groups such as product, discovery, fulfillment, trust, and business growth |
 | `source_profile` | Source strategy, such as `default` or `official_first` |
 | `sources.include/exclude` | Sources to include or exclude |
 | `items_per_platform` | Target number of items per platform |

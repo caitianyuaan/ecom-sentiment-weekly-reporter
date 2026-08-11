@@ -30,6 +30,7 @@ Required configurable fields:
 - `markets`: list of market codes, e.g. `["US", "UK"]`.
 - `platforms`: list of platforms to monitor.
 - `topics`: list of monitoring themes such as returns, delivery, seller governance, pricing, content commerce, trust and safety, payment safety.
+- `observation_metrics`: metric groups or exact metrics used to prioritize and interpret evidence, including product and selection, content and discovery, promotions and pricing, shopping experience, delivery and fulfillment, after-sales and trust, and business scale and growth.
 - `source_profile`: named profile such as `default`, `official_first`, `media_first`, or `custom`.
 - `sources`: object with `include` and `exclude` source lists.
 - `feishu_group_id`: target Feishu group chat ID for outbound reports.
@@ -44,22 +45,11 @@ Optional configurable fields:
 
 ## First-run onboarding
 
-If `~/.ecom-sentiment-weekly-reporter/config.json` is missing, incomplete, or contains placeholder values, help the teammate create it. Offer three setup modes:
+If `~/.ecom-sentiment-weekly-reporter/config.json` is missing or incomplete, read `references/onboarding-zh.md` and run its guided onboarding. Never lead with a missing-file error or expose raw JSON fields as the first interaction.
 
-1. **Follow creator's settings**
-   - Copy the creator-style monitoring scope from `references/sample-config.template.json`.
-   - Require the teammate to fill their own `feishu_group_id`, `feishu_doc_url`, and `sender_name` before sending or archiving.
+Offer a one-step recommended setup and a four-round custom setup covering: markets/platforms, topics/observation metrics, source strategy, and output/delivery. Treat file format and delivery channel as separate choices. Ask for Feishu destinations and sender attribution only when the user chooses the corresponding Feishu delivery.
 
-2. **Build on creator's settings**
-   - Start from the sample template.
-   - Ask which markets, platforms, topics, and sources they want to add/remove.
-   - Require their own Feishu destinations and sender attribution.
-
-3. **Fully customize**
-   - Ask for markets, platforms, topics, source profile or source list, Feishu group, Feishu doc, and sender name.
-   - Create a complete config from scratch.
-
-When writing the config file for the current user, use `scripts/init_user_config.py` with the chosen mode when possible. Do not put another person's Feishu group, document, or sender name into a teammate's saved config unless the teammate explicitly provides it.
+When writing the config file, use `scripts/init_user_config.py` when possible. Do not put another person's Feishu group, document, or sender name into a teammate's saved config unless the teammate explicitly provides it. After saving, immediately run preflight and continue the requested report; do not require another user turn just to say “run”.
 
 ## Running with saved config
 
@@ -118,13 +108,11 @@ Load the per-user config. Validate all required fields:
 - `markets`
 - `platforms`
 - `topics`
+- `observation_metrics`
 - `source_profile` or `sources`
-- `feishu_group_id`
-- `feishu_doc_url`
-- `sender_name`
 - `report_language`
 
-If any required field is missing, empty, or still a placeholder, run first-run onboarding instead of generating or sending the report.
+Require `feishu_group_id` and `sender_name` only when Feishu group delivery is enabled. Require `feishu_doc_url` and `sender_name` only when Feishu archive delivery is enabled. If any core field is missing, run guided onboarding instead of stopping with a missing-config error.
 
 ### Step 2: Resolve the reporting week and outbound titles
 
@@ -142,6 +130,8 @@ Run with:
 ### Step 3: Prepare market, platform, topic, and source scope
 
 Use the configured `markets`, `platforms`, `topics`, `source_profile`, and `sources`. Do not silently expand to creator-specific defaults.
+
+Use `observation_metrics` to prioritize candidate evidence and UXR interpretation. Business-scale metrics such as GMV, traffic, orders, sellers, conversion, or repeat purchase must appear only when the inspected source provides a reliable number or explicitly attributable directional claim; never infer them from general platform news.
 
 If `source_profile` is `default`, use `references/source-playbook.md` as the starting source universe and apply configured include/exclude lists.
 
@@ -360,6 +350,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 
 - Use `references/source-playbook.md` as the default source universe and query-planning reference when `source_profile` is `default`.
 - Use `references/sample-config.template.json` when onboarding teammates or creating a new per-user config.
+- Read `references/onboarding-zh.md` for every first-run or incomplete-config experience.
 - Use `references/report-format-html.md` for compact consulting-style HTML reports designed for group scanning.
 
 ## Attribution

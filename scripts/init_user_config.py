@@ -9,9 +9,7 @@ REQUIRED_FIELDS = [
     "markets",
     "platforms",
     "topics",
-    "feishu_group_id",
-    "feishu_doc_url",
-    "sender_name",
+    "observation_metrics",
     "report_language",
 ]
 
@@ -47,6 +45,15 @@ def validate_config(config: dict) -> list[str]:
             errors.append(f"Missing or placeholder required field: {field}")
     if not config.get("source_profile") and not config.get("sources"):
         errors.append("Missing source_profile or sources")
+    delivery = config.get("delivery", {})
+    if delivery.get("feishu_group"):
+        for field in ("feishu_group_id", "sender_name"):
+            if is_placeholder(config.get(field)):
+                errors.append(f"Missing field required for Feishu group delivery: {field}")
+    if delivery.get("feishu_archive"):
+        for field in ("feishu_doc_url", "sender_name"):
+            if is_placeholder(config.get(field)):
+                errors.append(f"Missing field required for Feishu archive delivery: {field}")
     return errors
 
 
@@ -98,8 +105,8 @@ def main() -> None:
             config["topics"] = []
             config["sources"]["include"] = []
         write_config(config, config_path, args.overwrite)
-        print(f"Created config template: {config_path}")
-        print("Please replace placeholder Feishu destinations and sender_name before running reports.")
+        print(f"Created local-ready config: {config_path}")
+        print("Feishu fields are required only if Feishu group delivery or archive is enabled.")
         return
 
     parser.print_help()
