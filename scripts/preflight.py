@@ -4,7 +4,7 @@ import json
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-REQUIRED = ["markets", "platforms", "topics", "feishu_group_id", "feishu_doc_url", "sender_name"]
+REQUIRED = ["markets", "platforms", "topics", "observation_metrics", "report_language"]
 PLACEHOLDER_PREFIX = "REPLACE_WITH_"
 
 
@@ -33,12 +33,24 @@ def main():
 
     today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
     start, end = week_range(today)
+    delivery = config.get("delivery", {})
+    send_requested = bool(delivery.get("feishu_group"))
+    archive_requested = bool(delivery.get("feishu_archive"))
+    if send_requested:
+        for field in ("feishu_group_id", "sender_name"):
+            if field not in config or invalid(config[field]):
+                errors.append(f"CONFIG_MISSING:{field}")
+    if archive_requested:
+        for field in ("feishu_doc_url", "sender_name"):
+            if field not in config or invalid(config[field]):
+                errors.append(f"CONFIG_MISSING:{field}")
+
     blockers = []
     if not args.can_search:
         blockers.append("SEARCH_CAPABILITY_MISSING")
-    if not args.can_send_feishu:
+    if send_requested and not args.can_send_feishu:
         blockers.append("FEISHU_SEND_CAPABILITY_MISSING")
-    if not args.can_archive_feishu:
+    if archive_requested and not args.can_archive_feishu:
         blockers.append("FEISHU_ARCHIVE_CAPABILITY_MISSING")
 
     payload = {
@@ -53,9 +65,15 @@ def main():
         "uxr_metric_language": "Chinese only",
         "markets": config.get("markets", []),
         "platforms": config.get("platforms", []),
+        "observation_metrics": config.get("observation_metrics", []),
         "sender_name": config.get("sender_name"),
         "feishu_group_id": config.get("feishu_group_id"),
         "feishu_doc_url": config.get("feishu_doc_url"),
+        "delivery": {
+            "local": delivery.get("local", True),
+            "feishu_group": send_requested,
+            "feishu_archive": archive_requested,
+        },
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     raise SystemExit(0 if payload["status"] == "ready" else 1)

@@ -21,17 +21,18 @@ def normalize_slash_labels(report: str) -> str:
 
 def normalize_sender(report: str, sender_name: str) -> str:
     """Ensure a market report ends with exactly one configured sender line."""
-    sender_line = f"消息由 {sender_name} 通过 Aime 个人助理 发送"
-    lines = [line for line in report.splitlines() if line.strip() != sender_line]
+    sender_line = f"消息由 {sender_name} 通过 Aime 个人助理 发送" if sender_name else None
+    lines = [line for line in report.splitlines() if not line.strip().startswith("消息由 ")]
     while lines and not lines[-1].strip():
         lines.pop()
-    lines.append(sender_line)
+    if sender_line:
+        lines.append(sender_line)
     return "\n".join(lines) + "\n"
 
 
 def normalize(report: str, config: dict) -> str:
     report = normalize_slash_labels(report)
-    return normalize_sender(report, config["sender_name"])
+    return normalize_sender(report, config.get("sender_name", ""))
 
 
 def main() -> None:
