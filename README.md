@@ -195,7 +195,7 @@ Skill 优先使用官方公告、监管机构、平台新闻中心、公司博�
 - HTML：适合浏览器打开、截图、群内分享或作为咨询式管理简报。
 - 飞书消息与归档：在配置了有效目标且当前环境具备对应能力时执行。
 
-当 HTML 输出开启时，飞书发送默认优先使用 interactive card 或 HTMLBox，以保留紧凑型报告布局；仅在当前飞书能力不支持卡片或 HTMLBox 时降级为 Markdown `post` 富文本，并在运行结果中明确说明降级。
+当 HTML 输出开启时，系统会生成两种产物：浏览器中的完整 HTML 报告，以及飞书原生 Card JSON 2.0。飞书端使用 `msg_type: interactive`，先发送概览卡，再按市场发送明细卡；每条新闻使用独立组件，避免整份 Markdown 被塞进一张超长卡片。飞书不支持任意网页 HTML/CSS，因此不再使用或声称支持 HTMLBox。若原生卡片不可用，降级为 Markdown `post` 前必须获得用户明确同意。
 
 HTML 布局规范见 [`references/report-format-html.md`](references/report-format-html.md)。
 
