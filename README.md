@@ -115,7 +115,7 @@ python3 scripts/init_user_config.py --validate
 | `sources.include/exclude` | 自定义纳入或排除的来源 |
 | `items_per_platform` | 每个平台期望的信息数量 |
 | `report_language` | 报告语言，例如 `zh-CN` |
-| `output.html` | HTML 是否启用、布局、市场是否合并、是否使用图片 |
+| `output.html` | HTML 是否启用、布局、市场是否合并、是否使用图片；默认启用 |
 | `feishu_group_id` | 飞书群 ID；仅本地生成时可不执行发送 |
 | `feishu_doc_url` | 飞书归档文档；仅本地生成时可不执行归档 |
 | `sender_name` | 报告署名 |
@@ -163,6 +163,7 @@ python3 scripts/init_user_config.py --validate
 - 不会因为事件仍然相关，就把旧文章改标为本周日期。
 - 达不到目标条数时，会保留实际可验证条目并明确说明缺口。
 - 多家媒体重复报道同一事件时，优先保留最强来源，其他来源只用于交叉验证。
+- 如果原始链接路径中带有明确发布日期，该日期不得与报告标注日期冲突；出现冲突时必须重新核验，不能发送。
 
 因此，“每个市场 8–12 条”表示期望覆盖范围，不代表必须牺牲时效性或真实性凑满数量。
 
@@ -183,6 +184,8 @@ Skill 优先使用官方公告、监管机构、平台新闻中心、公司博�
 - Markdown：适合作为标准文本底稿、复制到文档或继续编辑。
 - HTML：适合浏览器打开、截图、群内分享或作为咨询式管理简报。
 - 飞书消息与归档：在配置了有效目标且当前环境具备对应能力时执行。
+
+当 HTML 输出开启时，飞书发送默认优先使用 interactive card 或 HTMLBox，以保留紧凑型报告布局；仅在当前飞书能力不支持卡片或 HTMLBox 时降级为 Markdown `post` 富文本，并在运行结果中明确说明降级。
 
 HTML 布局规范见 [`references/report-format-html.md`](references/report-format-html.md)。
 

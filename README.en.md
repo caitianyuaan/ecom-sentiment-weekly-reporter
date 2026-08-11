@@ -115,7 +115,7 @@ Main configuration fields:
 | `sources.include/exclude` | Sources to include or exclude |
 | `items_per_platform` | Target number of items per platform |
 | `report_language` | Report locale, such as `zh-CN` or `en` |
-| `output.html` | HTML toggle, layout, combined-market setting, and image setting |
+| `output.html` | HTML toggle, layout, combined-market setting, and image setting; enabled by default |
 | `feishu_group_id` | Feishu group ID; unused during local-only runs |
 | `feishu_doc_url` | Feishu archive document; unused during local-only runs |
 | `sender_name` | Report attribution |
@@ -163,6 +163,7 @@ The reporting window is a hard constraint; item volume is a target:
 - Do not relabel an old publication with an in-window date simply because the topic remains relevant.
 - If the verified sample is smaller than requested, retain the valid sample and disclose the shortfall.
 - When multiple outlets cover the same event, keep the strongest source and use other coverage only for corroboration.
+- If the source URL contains an explicit publication date, it must not conflict with the date shown in the report. A mismatch requires re-verification and blocks delivery.
 
 Therefore, “8–12 items per market” describes the desired coverage, not permission to compromise recency or accuracy.
 
@@ -183,6 +184,8 @@ The Skill prioritizes official notices, regulators, platform newsrooms, company 
 - **Markdown:** the canonical editable report suitable for documents and further editing.
 - **HTML:** a browser-ready consulting brief suitable for screenshots and group sharing.
 - **Feishu delivery and archive:** performed when valid destinations are configured and the runtime provides the required integration.
+
+When HTML output is enabled, Feishu delivery prefers an interactive card or HTMLBox so the compact report layout is preserved. It falls back to a Markdown-derived `post` message only when the available Feishu integration does not support cards or HTMLBox, and the run result must disclose that fallback.
 
 See [`references/report-format-html.md`](references/report-format-html.md) for the HTML presentation contract.
 
