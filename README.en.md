@@ -197,6 +197,8 @@ The Skill prioritizes official notices, regulators, platform newsrooms, company 
 
 When HTML output is enabled, the Skill creates two artifacts: the complete browser HTML report and native Feishu Card JSON 2.0. Feishu receives `msg_type: interactive` payloads—an overview card followed by market detail cards—with each news item in its own component. Feishu does not render arbitrary webpage HTML/CSS, so the Skill no longer uses or claims an HTMLBox path. Falling back to a Markdown `post` requires explicit user approval.
 
+The overview card exposes two separate actions: “View this week's complete HTML report” and “View Feishu document history.” The first opens one combined-market report. Market detail cards do not repeat these actions, and each button is hidden independently when its URL is unavailable.
+
 See [`references/report-format-html.md`](references/report-format-html.md) for the HTML presentation contract.
 
 ## FAQ
