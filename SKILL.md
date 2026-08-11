@@ -40,7 +40,7 @@ Required configurable fields:
 Optional configurable fields:
 - `date_range`: explicit reporting window; otherwise use current week in local time.
 - `items_per_platform`: recommended range is 3-5 when enough valid items exist.
-- `output.html`: HTML output toggle, output directory, and layout. Use `consulting_compact` for a group-readable management brief.
+- `output.html`: HTML output toggle, output directory, and layout. Default `enabled` to `true` and use `consulting_compact` unless the user explicitly requests Markdown-only output.
 
 ## First-run onboarding
 
@@ -309,15 +309,33 @@ Use the current user's configured `feishu_doc_url`. Do not add the link before a
 
 ### Step 10: Validate the final outbound report
 
-Save the final market report to a temporary UTF-8 text file and run:
+After archival and after inserting the document link and sender attribution, save each final market report to a temporary UTF-8 text file. Normalize deterministic rendering errors first:
+
+`python3 scripts/normalize_report.py --report <REPORT_FILE> --config <CONFIG_FILE>`
+
+The normalizer restores exact taxonomy labels whose internal `/` was accidentally spaced by a renderer and collapses duplicate configured sender lines to exactly one final line. Do not normalize a combined multi-market blob; normalize and validate each market report before combining or sending.
+
+Then run validation on that exact final outbound file:
 
 `python3 scripts/validate_report.py --report <REPORT_FILE> --config <CONFIG_FILE> --archived`
 
 If validation fails, regenerate once using the returned error codes. If it still fails, record `FAILED` and do not send. Validation is a hard gate, not advisory guidance.
 
+Do not modify, append to, or re-render the report after validation. The bytes that pass validation must be the bytes sent to Feishu and archived as the final version. If any delivery adapter changes the content, run normalization and validation again on the resulting text before sending.
+
 ### Step 11: Send the Feishu group message
 
-Only after validation succeeds, use an available Feishu messaging skill, connector, or tool to send the complete report to `feishu_group_id`. Do not send a teaser or abstract. After success, record `MESSAGE_SENT` and then `COMPLETE`.
+Only after validation succeeds, use an available Feishu messaging skill, connector, or tool to send the complete report to `feishu_group_id`. Do not send a teaser or abstract.
+
+When `output.html.enabled` is `true`, use this delivery order:
+1. generate the validated `consulting_compact` HTML report;
+2. send it as a Feishu interactive card or HTMLBox when the available Feishu integration supports either format;
+3. verify that the card contains the complete report content and exactly one sender attribution;
+4. only when interactive card / HTMLBox delivery is unavailable, fall back to a Markdown-derived Feishu `post` message and explicitly report that fallback in the run result.
+
+Do not silently choose Markdown `post` merely because it is easier to send. HTML/card delivery is the default presentation path. Do not paste raw HTML source into a plain-text or Markdown message.
+
+After success, record `MESSAGE_SENT` and then `COMPLETE`.
 
 If no Feishu messaging capability is available, record `FAILED` with `FEISHU_SEND_CAPABILITY_MISSING`, return the complete report in the conversation, and do not claim it was sent.
 
@@ -327,6 +345,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 - the config was loaded from the current user's saved config or current explicit parameters;
 - no creator-specific Feishu group, document, market list, or sender name was used unless explicitly configured by this user;
 - every item has one link and one sentiment label;
+- a source URL with an embedded publication date does not contradict the displayed `时间节点`; treat a mismatch as evidence that an old article may have been relabeled;
 - every item has a UXR metric line immediately after it;
 - every item has 3-4 UXR metric labels;
 - all UXR metric labels are Chinese and exactly match the taxonomy above;
@@ -335,6 +354,7 @@ Before any external send, run `scripts/validate_report.py`; do not rely on visua
 - after successful archival, the complete-report document link appears exactly once immediately before the sender attribution;
 - each market report ends with exactly one configured sender attribution line;
 - outbound titles and archive title use the resolved week from `scripts/build_week_config.py`.
+- when HTML output is enabled, the Feishu send used interactive card / HTMLBox or the run result explicitly disclosed the Markdown `post` fallback.
 
 ## Reference files
 

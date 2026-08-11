@@ -48,6 +48,19 @@ def validate(report, config, archived):
             errors.append(f"ITEM_LINK_MISSING:{index}")
         if sum(s in line for s in SENTIMENTS) != 1:
             errors.append(f"ITEM_SENTIMENT_INVALID:{index}")
+        displayed_date = re.search(r"时间节点：(\d{4})/(\d{2})/(\d{2})", line)
+        source_url = re.search(r"\[链接\]\((https?://[^)]+)\)", line)
+        if displayed_date and source_url:
+            url_date = re.search(r"/(20\d{2})/(\d{1,2})/(\d{1,2})/", source_url.group(1))
+            if url_date:
+                shown = tuple(int(part) for part in displayed_date.groups())
+                embedded = tuple(int(part) for part in url_date.groups())
+                if shown != embedded:
+                    errors.append(
+                        f"ITEM_SOURCE_DATE_MISMATCH:{index}:"
+                        f"shown={shown[0]:04d}-{shown[1]:02d}-{shown[2]:02d}:"
+                        f"url={embedded[0]:04d}-{embedded[1]:02d}-{embedded[2]:02d}"
+                    )
     metric_lines = [line for line in report.splitlines() if line.startswith("**UXR关联指标：**")]
     if len(metric_lines) != len(item_lines):
         errors.append("UXR_LINE_COUNT")

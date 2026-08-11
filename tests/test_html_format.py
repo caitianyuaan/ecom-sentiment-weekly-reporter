@@ -11,6 +11,7 @@ class HTMLFormatTests(unittest.TestCase):
     def test_sample_config_exposes_compact_html_defaults(self):
         config = json.loads((ROOT / "references" / "sample-config.template.json").read_text(encoding="utf-8"))
         html = config["output"]["html"]
+        self.assertTrue(html["enabled"])
         self.assertEqual(html["layout"], "consulting_compact")
         self.assertTrue(html["combine_markets"])
         self.assertFalse(html["include_images"])

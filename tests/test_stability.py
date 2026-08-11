@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
@@ -7,6 +8,11 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("validate_report", ROOT / "scripts" / "validate_report.py")
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+sys.modules["validate_report"] = MODULE
+
+NORMALIZE_SPEC = importlib.util.spec_from_file_location("normalize_report", ROOT / "scripts" / "normalize_report.py")
+NORMALIZE_MODULE = importlib.util.module_from_spec(NORMALIZE_SPEC)
+NORMALIZE_SPEC.loader.exec_module(NORMALIZE_MODULE)
 
 CONFIG = {
     "platforms": ["Amazon"],
@@ -46,6 +52,23 @@ class StabilityTests(unittest.TestCase):
 
     def test_unarchived_report_must_not_include_link(self):
         self.assertIn("DOCUMENT_LINK_COUNT", MODULE.validate(VALID_REPORT, CONFIG, archived=False))
+
+    def test_normalizer_repairs_spaced_taxonomy_slashes_and_duplicate_sender(self):
+        broken = VALID_REPORT.replace("整体配送速度快", "发现商品 / 品牌")
+        broken += "消息由 测试用户 通过 Aime 个人助理 发送\n"
+        normalized = NORMALIZE_MODULE.normalize(broken, CONFIG)
+        self.assertIn("发现商品/品牌", normalized)
+        self.assertNotIn("发现商品 / 品牌", normalized)
+        self.assertEqual(normalized.count("消息由 测试用户 通过 Aime 个人助理 发送"), 1)
+        self.assertTrue(normalized.endswith("消息由 测试用户 通过 Aime 个人助理 发送\n"))
+
+    def test_source_url_date_mismatch_is_rejected(self):
+        report = VALID_REPORT.replace(
+            "https://example.com/news",
+            "https://example.com/2026/07/31/old-news/",
+        )
+        errors = MODULE.validate(report, CONFIG, archived=True)
+        self.assertTrue(any(error.startswith("ITEM_SOURCE_DATE_MISMATCH") for error in errors))
 
 
 if __name__ == "__main__":

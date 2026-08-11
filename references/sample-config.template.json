@@ -71,7 +71,7 @@
   },
   "output": {
     "html": {
-      "enabled": false,
+      "enabled": true,
       "output_dir": "outputs",
       "layout": "consulting_compact",
       "combine_markets": true,
